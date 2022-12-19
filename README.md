@@ -1,4 +1,4 @@
-# txt_analysis
+# style_cmp
 A more complex CL utility to analyze and compare text files 
 
 #Author Samuel Kent 22704037
