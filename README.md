@@ -48,18 +48,18 @@ ie
 d = √[ (x2 – x1)2 + (y2 – y1)2]
 
 
-#If one file specified, a profile should be created and printed
-#If two files given, profile created for  each and then compared using a metric
+If one file specified, a profile should be created and printed
+If two files given, profile created for  each and then compared using a metric
 
 
-#Some definitions for this program:
-#	Word = can be a "word-pair", a contraction or possessive. Is one or more alphabetic chars followed by a space
-#		or any any punctuation other than hyphen or apostrophe, or the end of the file
-#
-#	Sentence = is a sequence of one or more words followed by either a full-stop, question-mark or exclamation mark
-#
-#	Possessive = a simple word followed by an apostrophe (i.e. in effect single quote), which in turn is immediately# 			followed by "s", e.g. "mother's"
-#
-#	contraction = a simple word followed by an apostrophe, followed by other alphabetics, e.g. "won't", "shouldn't" 
+Some definitions for this program:
+	Word = can be a "word-pair", a contraction or possessive. Is one or more alphabetic chars followed by a space
+		or any any punctuation other than hyphen or apostrophe, or the end of the file
+
+	Sentence = is a sequence of one or more words followed by either a full-stop, question-mark or exclamation mark
+
+	Possessive = a simple word followed by an apostrophe (i.e. in effect single quote), which in turn is immediately# 			followed by "s", e.g. "mother's"
+
+	contraction = a simple word followed by an apostrophe, followed by other alphabetics, e.g. "won't", "shouldn't" 
 
 
