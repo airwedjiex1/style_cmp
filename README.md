@@ -1,7 +1,8 @@
 # style_cmp
-A more complex CL utility to analyze and compare the writing/language style of text files
 
-#Author Samuel Kent 22704037
+Author: Samuel Kent 
+
+A more complex CL utility to analyze and compare the writing/language style of text files
 
 A Tool to examine and compare the writing/language style of certain text files. 
 
