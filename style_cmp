@@ -1,0 +1,217 @@
+#!/bin/bash
+
+#Author Samuel Kent 22704037
+
+#Top level bash script 
+
+#If one file specified, a profile should be created and printed
+#If two files given, profile created for  each and then compared using a metric
+
+
+#Some definitions for this program:
+#	Word = can be a "word-pair", a contraction or possessive. Is one or more alphabetic chars followed by a space
+#		or any any punctuation other than hyphen or apostrophe, or the end of the file
+#
+#	Sentence = is a sequence of one or more words followed by either a full-stop, question-mark or exclamation mark
+#
+#	Possessive = a simple word followed by an apostrophe (i.e. in effect single quote), which in turn is immediately# 			followed by "s", e.g. "mother's"
+#
+#	contraction = a simple word followed by an apostrophe, followed by other alphabetics, e.g. "won't", "shouldn't" 
+
+
+
+#Global vars to be accesed by an awk function
+export wc_prof1
+export sc_prof1
+export wc_prof2
+export sc_prof2
+
+export conjunctions='"also", "although", "and", "as", "because", "before", "but", "for", "if", "nor", "of", "or", "since", "that", "though", "until", "when", "whenever", "whereas", "which", "while", "yet"'
+
+IFS=$'\n'
+
+
+#Check usage
+#prints if wrong number of args given
+if [ $# -ne 2 ] && [ $# -ne 1 ] 
+then 
+	echo "Usage: $0 <file>  OR  $0 <file1> <file2> "
+	exit 1 #exit failure is 1, success is 0 
+fi
+
+
+
+#Check the file/s given are valid non empty textfiles 
+if [ ! -s $2 ] || [ ! -s $1 ]  
+then
+	echo "An empty or unavailable text file cannot be given"
+	exit 1 
+fi
+
+
+
+
+#If a single file given, take all relevant "tokens" with sed then create a profile 
+	
+	> no_DH.txt
+	> profile.txt
+	> profile_1.txt
+
+	#remove double hyphen and output to new textfile 
+	sed 's/--/ /g' $1 > no_DH.txt
+	
+	#get word token 
+	word=$(cat $1 | tr 'A-Z' 'a-z' | sed 's/--/ /g' | sed 's/[^a-z ]//g' | tr -s '[:space:]' '\n' |  tr -s '\n' | wc -l)
+
+	#get sentence token
+ 	sentence=$( cat no_DH.txt | grep -o ".[.?!]" | wc -l)	
+
+	#get all conjunction word tokens
+	temp=$(echo $conjunctions | sed -e 's/", "/\\|/g' -e 's/"//g')
+	in_file=$(grep -o -w $temp no_DH.txt | sort | uniq -c)
+	
+	#get contraction token 
+       	contraction=$(cat no_DH.txt | grep -o "'[a-z]" | grep -v "'s" | wc -l)	
+
+	#get semi_colon token 
+	semi_colon=$(cat no_DH.txt | grep -o ";" | wc -l)
+	
+
+	#get comma token
+	comma=$(cat no_DH.txt | grep -o "," | wc -l)
+	
+
+	#get compound_word token 
+	compound_word=$(cat no_DH.txt | grep -o "[a-zA-Z]-[a-zA-Z]" | wc -l)
+
+	#create the profile
+        > profile.txt	
+	echo $word | awk '{ print "word" "\t" $1 }' >> profile.txt	
+ 	echo $sentence | awk '{ print "sentence" "\t" $1 }' >> profile.txt	
+	echo $contraction | awk '{ print "contraction" "\t" $1 }' >> profile.txt	
+	echo $semi_colon | awk '{ print "semi_colon" "\t" $1 }' >> profile.txt
+	echo $comma | awk '{ print "comma" "\t" $1 }' >> profile.txt
+	echo $compound_word | awk '{ print "compound_word" "\t" $1 }' >> profile.txt
+
+	#add all conjunctions that are in the file to the profile	
+	while IFS= read -r line; do
+		echo $line | awk '{ print $2 "\t" $1 }' >> profile.txt
+	done <<< $in_file
+	
+	#add all conjunctions that are not in the file to the profile
+	conjunctions_temp=$(echo $temp | sed -e 's/\\|/\n/g')
+	while IFS= read -r line; do
+		if ! grep -q -w "$line" profile.txt; then	
+                echo $line | awk '{ print $1 "\t" "0" }' >> profile.txt
+		fi
+        done <<< $conjunctions_temp
+	
+	#variables to be given to awk script later
+ 	wc_prof1=$word
+       	sc_prof1=$sentence	
+	
+	#sort the profile in alphabetical order
+	sort -k 1 profile.txt > profile_1.txt
+	 
+
+
+#if only one file was given, output the profile and remove temp files
+if [ $# -eq 1 ]
+then
+	cat profile_1.txt
+	rm no_DH.txt profile_1.txt 
+fi
+
+
+
+
+#If two files are given, run a similair script to make a second profile for the second file
+if [ $# -eq 2 ]
+then 
+	> no_DH.txt
+        > profile.txt
+	> profile_2.txt
+
+        #remove double hyphen and output to new textfile, remove the new txt at end
+        sed 's/--/ /g' $2 > no_DH.txt
+	
+
+        #get word token
+        word=$(cat $1 | tr 'A-Z' 'a-z' | sed 's/--/ /g' | sed 's/[^a-z ]//g' | tr -s '[:space:]' '\n' |  tr -s '\n' | wc -l)
+
+        #get sentence token
+        sentence=$( cat no_DH.txt | grep -o ".[.?!]" | wc -l)
+
+
+        #get all conjunction word tokens
+        temp=$(echo $conjunctions | sed -e 's/", "/\\|/g' -e 's/"//g')
+        in_file=$(grep -ow $temp no_DH.txt | sort | uniq -c)
+
+
+        #get contraction token
+	contraction=$(cat no_DH.txt | grep -o "'[a-z]" | grep -v "'s" | wc -l)
+
+        #get semi_colon token
+        semi_colon=$(cat no_DH.txt | grep -o ";" | wc -l)
+
+
+        #get comma token
+        comma=$(cat no_DH.txt | grep -o "," | wc -l)
+
+
+        #get compound_word token
+        compound_word=$(cat no_DH.txt | grep -o "[a-zA-Z]-[a-zA-Z]" | wc -l)
+
+        #create the profile
+        > profile.txt
+        echo $word | awk '{ print "word" "\t" $1 }' >> profile.txt
+        echo $sentence | awk '{ print "sentence" "\t" $1 }' >> profile.txt
+        echo $contraction | awk '{ print "contraction" "\t" $1 }' >> profile.txt
+        echo $semi_colon | awk '{ print "semi_colon" "\t" $1 }' >> profile.txt
+        echo $comma | awk '{ print "comma" "\t" $1 }' >> profile.txt
+        echo $compound_word | awk '{ print "compound_word" "\t" $1 }' >> profile.txt
+	
+
+	#add all conjunctions that are in the file to the profile
+        while IFS= read -r line; do
+                echo $line | awk '{ print $2 "\t" $1 }' >> profile.txt
+        done <<< $in_file
+
+	
+	#add all conjunctions that are not in the file to the profile
+        conjunctions_temp=$(echo $temp | sed -e 's/\\|/\n/g')
+        while IFS= read -r line; do
+                if ! grep -q -w "$line" profile.txt; then
+                echo $line | awk '{ print $1 "\t" "0" }' >> profile.txt
+                fi
+        done <<< $conjunctions_temp
+	
+	#sort the profile alphabetically
+        sort -k 1 profile.txt > profile_2.txt
+	
+	#sort the profile in alphabetical order	
+	wc_prof2=$word
+        sc_prof2=$sentence
+
+	
+	#normalize both the profiles with normalize.awk with the wordcount and sentence count as given variables
+	awk -v wc=$wc_prof1 -v sc=$sc_prof1 -F "\t" -f normalize.awk profile_1.txt > norm_p1.txt
+	awk -v wc=$wc_prof2 -v sc=$sc_prof2 -F "\t" -f normalize.awk profile_2.txt > norm_p2.txt
+
+
+	#compare both the profiles with compare.awk
+	awk -F " " -f compare.awk norm_p1.txt norm_p2.txt > compared.txt 
+
+	#output the resulting file
+	cat compared.txt	
+
+	#remove temp files
+	rm compared.txt no_DH.txt norm_p1.txt norm_p2.txt profile.txt 
+fi
+
+
+
+
+
+
+
