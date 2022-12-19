@@ -6,6 +6,7 @@ A more complex CL utility to analyze and compare the writing/language style of t
 A Tool to examine and compare the writing/language style of certain text files. 
 
 Takes one or more .txt files, builds a profile on each of them by counting all occurences of certain types of words 
+
 EXAMPLE OF A BUILT PROFILE:
 
 ![test1 style_cmp](https://user-images.githubusercontent.com/46706647/208345902-c3937788-1056-4f3d-bd7c-6e673d2e721f.PNG)
