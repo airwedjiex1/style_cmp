@@ -2,7 +2,7 @@
 
 Author: Samuel Kent 
 
-A more complex CL utility to analyze and compare the writing/language style of text files
+A more complex CL utility to analyze and compare the writing/language style of given text files
 
 A Tool to examine and compare the writing/language style of certain text files. 
 
